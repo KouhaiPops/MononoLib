@@ -1,0 +1,539 @@
+﻿#define NEW
+
+#if NEW
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+using MonoTest.Base.Component;
+using MonoTest.Base.State;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MonoTest.Base.Primitives
+{
+    public class Circle : BaseElement, IDrawable
+    {
+        public ref int StrokeWidth { get => ref _StrokeWidth; }
+
+        private int _StrokeWidth;
+        public ref Color StrokeColor { get => ref _StrokeColor; }
+
+        private Color _StrokeColor;
+
+        public ref Color Fill { get => ref _Fill; }
+
+        private Color _Fill;
+
+        private Renderer2D renderer;
+        private bool isConstructed = false;
+        public DrawActions.PreDrawAction PreDraw { get; set; } = DrawBase.PreDraw;
+        public DrawActions.PostDrawAction PostDraw { get; set; } = DrawBase.PostDraw;
+
+        public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.GameTime gameTime)
+        {
+            PreDraw(spriteBatch, gameTime);
+            renderer.Render(spriteBatch);
+            PostDraw(spriteBatch, gameTime);
+        }
+
+        public int Radius { get; }
+
+        public Circle(int radius) : this(radius, 1)
+        {
+        }
+
+        public Circle(int radius, int strokeWidth) : this(radius, strokeWidth, Color.Black)
+        {
+        }
+
+        public Circle(int radius, int strokeWidth, Color strokeColor) : this(radius, strokeWidth, strokeColor, Color.Transparent)
+        {
+        }
+
+        public Circle(int radius, int strokeWidth, Color strokeColor, Color fill)
+        {
+            _StrokeWidth = strokeWidth;
+            _StrokeColor = strokeColor;
+            _Fill = fill;
+
+            Transform.Position = new Vector2(200, 200);
+            Transform.Scale *= 4;
+            renderer = new()
+            {
+                Parent = this
+            };
+            AddComponent(renderer);
+            Radius = radius;
+            isConstructed = true;
+            Initialize();
+
+        }
+
+        public override void Initialize()
+        {
+            if (!isConstructed)
+                return;
+
+
+
+            var shouldFill = _Fill != Color.Transparent;
+
+            var referencePoint = (Radius * 2) + 1;
+            Transform.Size = new Vector2(referencePoint, referencePoint);
+            renderer.Begin();
+
+            var center = new Vector2((referencePoint - 1) / 2, (referencePoint - 1) / 2);
+            //draw_circle_bresenham((int)center.X, (int)center.Y, Radius, StrokeWidth);
+
+            var currentPoint = new Vector2(0, Radius);
+            var innerPoint = new Vector2(0, Radius - _StrokeWidth);
+            //var p = 1 - Radius; // Radius or point.x
+            var p = 1 - currentPoint.Y; // Radius or point.y
+            var p1 = 1 - innerPoint.Y; // Radius or point.y
+
+            //var plotPoint = center;
+
+
+            while (currentPoint.X < currentPoint.Y)
+            {
+                #region Comment
+                // In an array, Y is larger when we go DOWN
+                //              X is larger when we go RIGHT
+                // To normalize that, and center around a point
+                // We add the center's X to the current point's X
+                // And that works correctly, because if the curernt point's X goes negative
+                // Then adding it to the center point would cause it to to go to the LEFT
+                // Which in a cartesian set is valid
+
+                // We change the symbol of the current point's Y and THEN add the center's Y to it
+                // This way, when the current point's Y goes UP, it actually goes DOWN, and vise versa
+                // In fact, the logic is simplified by just subtracting the center's Y from the current point's Y
+                /*
+                 *
+                 *
+                 *
+                     0   0  0  0
+                     1   0  1  0
+                     2   0  0  0
+
+                         0  1  2
+                ======================
+                     1   0  0  0
+                     0   0  1  0
+                    -1   0  0  0
+    
+                        -1  0  1
+                 *
+                 *
+                 */
+                #endregion
+                #region Draw outer Dots
+                var drawPoint = new Vector2(currentPoint.X + center.X, center.Y - currentPoint.Y);
+                var secondDraw = center + currentPoint;
+                var thirdDraw = new Vector2(-currentPoint.X + center.X, center.Y - currentPoint.Y);
+
+
+                //renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, secondDraw.Y, Color.Black);
+
+                // Octant 1 // TOP RIGHT
+                renderer.SetPixel(drawPoint.X, drawPoint.Y, StrokeColor);
+                //// Octant 6 // BOTTOM LEFT
+                renderer.SetPixel(drawPoint.Y, drawPoint.X, StrokeColor);
+
+                //// Octant 4 // BOTTOM
+                renderer.SetPixel(secondDraw.X, secondDraw.Y, StrokeColor);
+                // Octant 3 // BOTTOM LEFT
+                renderer.SetPixel(secondDraw.Y, secondDraw.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw.X, thirdDraw.Y, StrokeColor);
+                renderer.SetPixel(thirdDraw.Y, thirdDraw.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw.X, secondDraw.Y, StrokeColor);
+                renderer.SetPixel(secondDraw.Y, thirdDraw.X, StrokeColor);
+                currentPoint.X++;
+                #endregion
+
+                #region Draw inner
+                var drawPoint2 = new Vector2(innerPoint.X + center.X, center.Y - innerPoint.Y);
+                var secondDraw2 = center + innerPoint;
+                var thirdDraw2 = new Vector2(-innerPoint.X + center.X, center.Y - innerPoint.Y);
+
+                // Octant 1 // TOP RIGHT
+                renderer.SetPixel(drawPoint.X, drawPoint2.Y, StrokeColor);
+                // Octant 6 // BOTTOM LEFT
+                renderer.SetPixel(drawPoint2.Y, drawPoint.X, StrokeColor);
+
+                // Octant 4 // BOTTOM
+                renderer.SetPixel(secondDraw.X, secondDraw2.Y, StrokeColor);
+                // Octant 3 // BOTTOM LEFT
+                renderer.SetPixel(secondDraw2.Y, secondDraw.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw.X, thirdDraw2.Y, StrokeColor);
+                renderer.SetPixel(thirdDraw2.Y, thirdDraw.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw.X, secondDraw2.Y, StrokeColor);
+                renderer.SetPixel(secondDraw2.Y, thirdDraw.X, StrokeColor);
+                #endregion
+
+                #region Fill
+                if (shouldFill)
+                {
+                    //renderer.DrawHorizontalLine(drawPoint2.Y, secondDraw2.Y, drawPoint.X, Fill);
+                    //renderer.DrawHorizontalLine(thirdDraw2.Y, secondDraw2.Y, thirdDraw.X, Fill);
+                    //renderer.DrawHorizontalLine(secondDraw2.Y, secondDraw2.Y, thirdDraw.X, Fill);
+
+                    //renderer.DrawVerticalLine(drawPoint.X, drawPoint2.Y, secondDraw2.Y, Fill);
+                    //renderer.DrawVerticalLine(thirdDraw.X, drawPoint2.Y, secondDraw2.Y, Fill);
+                    //renderer.DrawHorizontalLine(thirdDraw.X, drawPoint2.Y, secondDraw2.Y, Fill);
+                    //renderer.DrawVerticalLine(secondDraw.X, secondDraw2.Y, thirdDraw2.Y, Fill);
+                }
+                #endregion
+
+                #region Draw Stroke
+                renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, drawPoint2.Y, StrokeColor);
+                renderer.DrawVerticalLine(secondDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor);
+                renderer.DrawVerticalLine(thirdDraw.X, thirdDraw.Y, thirdDraw2.Y, StrokeColor);
+                renderer.DrawVerticalLine(thirdDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor);
+
+                renderer.DrawHorizontalLine(drawPoint.Y, drawPoint2.Y, drawPoint.X, StrokeColor);
+                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, secondDraw.X, StrokeColor);
+                renderer.DrawHorizontalLine(thirdDraw.Y, thirdDraw2.Y, thirdDraw.X, StrokeColor);
+                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, thirdDraw.X, StrokeColor);
+                #endregion
+
+
+                if (p < 0)
+                {
+                    p += (2 * (int)currentPoint.X) + 1;
+                }
+                else
+                {
+                    currentPoint.Y--;
+                    //p -= (2 * (int)currentPoint.Y) - (2 * (int)currentPoint.X) + 1;
+                    p += 2 * (currentPoint.X - currentPoint.Y) + 1;
+                }
+
+                if (p1 < 0)
+                {
+                    p1 += (2 * (int)currentPoint.X) + 1;
+                }
+                else
+                {
+                    innerPoint.Y--;
+                    p1 += 2 * (currentPoint.X - innerPoint.Y) + 1;
+                }
+                
+                // TODO moving this under innerPoint.Y solves double slits problem
+                if (currentPoint.X > innerPoint.Y)
+                {
+                    innerPoint.Y = currentPoint.X - 1;
+                }
+                else
+                {
+                    //innerPoint.Y = currentPoint.Y -
+                }
+            }
+            renderer.End();
+        }
+        void draw_circle_bresenham(int x0, int y0, int radius, int thickness)
+        {
+            int f = 1 - radius;
+            int ddF_x = 0;
+            int ddF_y = -2 * radius;
+            int x = 0;
+            int y = radius;
+            int y1;
+            int i_y = radius - thickness;
+            int thickness_inner = thickness;
+            int i_f = 1 - i_y;
+            int i_ddF_x = 0;
+            int i_ddF_y = -2 * i_y;
+            int i;
+
+            while (x < y)
+            {
+                if (f >= 0)
+                {
+                    y--;
+                    ddF_y += 2;
+                    f += ddF_y;
+                }
+                /* inner circle*/
+                if (i_f >= 0)
+                {
+                    i_y--;
+                    i_ddF_y += 2;
+                    i_f += i_ddF_y;
+                }
+                x++;
+                ddF_x += 2;
+                f += ddF_x + 1;
+
+                /* inner circle*/
+                i_ddF_x += 2;
+                i_f += i_ddF_x + 1;
+
+                if (x > i_y)
+                {
+                    /* Distance between outer circle and 45-degree angle */
+                    /* plus one pixel so there's no gap */
+                    thickness_inner = y - x + 1;
+                }
+                else
+                {
+                    /* Distance between outer and inner circle */
+                    thickness_inner = y - i_y;
+                }
+
+                /* Numbers represent parts of circle function draw in radians
+                   interval: [number - 1 * pi / 4, number * pi / 4] */
+                for (i = thickness_inner-1; i < thickness_inner; i += 100)
+                {
+                    y1 = y - i;
+                    renderer.SetPixel(x0 + x - 1, y0 + y1 - 1, StrokeColor); /* 7 */
+                    renderer.SetPixel(x0 - x, y0 + y1 - 1, StrokeColor); /* 6 */
+                    renderer.SetPixel(x0 + x - 1, y0 - y1, StrokeColor); /* 2 */
+                    renderer.SetPixel(x0 - x, y0 - y1, StrokeColor); /* 3 */
+                    renderer.SetPixel(x0 + y1 - 1, y0 + x - 1, StrokeColor); /* 8 */
+                    renderer.SetPixel(x0 + y1 - 1, y0 - x, StrokeColor); /* 1 */
+                    renderer.SetPixel(x0 - y1, y0 + x - 1, StrokeColor); /* 5 */
+                    renderer.SetPixel(x0 - y1, y0 - x, StrokeColor); /* 4 */
+                }
+            }
+        }
+        public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
+        {
+
+        }
+    }
+}
+#else
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+using MonoTest.Base.Component;
+using MonoTest.Base.State;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MonoTest.Base.Primitives
+{
+    public class Circle : BaseElement, IDrawable
+    {
+        public ref int StrokeWidth { get => ref _StrokeWidth; }
+
+        private int _StrokeWidth;
+        public ref Color StrokeColor { get => ref _StrokeColor; }
+
+        private Color _StrokeColor;
+
+        public ref Color Fill { get => ref _Fill; }
+
+        private Color _Fill;
+
+        private Renderer2D renderer;
+        private bool isConstructed = false;
+        public DrawActions.PreDrawAction PreDraw { get; set; } = DrawBase.PreDraw;
+        public DrawActions.PostDrawAction PostDraw { get; set; } = DrawBase.PostDraw;
+
+        public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.GameTime gameTime)
+        {
+            PreDraw(spriteBatch, gameTime);
+            renderer.Render(spriteBatch);
+            PostDraw(spriteBatch, gameTime);
+        }
+
+        public int Radius { get; }
+
+        public Circle(int radius) : this(radius, 1)
+        {
+        }
+
+        public Circle(int radius, int strokeWidth) : this(radius, strokeWidth, Color.Black)
+        {
+        }
+
+        public Circle(int radius, int strokeWidth, Color strokeColor) : this(radius, strokeWidth, strokeColor, Color.Transparent)
+        {
+        }
+
+        public Circle(int radius, int strokeWidth, Color strokeColor, Color fill)
+        {
+            _StrokeWidth = strokeWidth;
+            _StrokeColor = strokeColor;
+            _Fill = fill;
+
+            Transform.Position = new Vector2(200, 200);
+            renderer = new()
+            {
+                Parent = this
+            };
+            AddComponent(renderer);
+            Radius = radius;
+            isConstructed = true;
+            Initialize();
+
+        }
+
+        public override void Initialize()
+        {
+            if (!isConstructed)
+                return;
+
+
+            var shouldFill = _Fill != Color.Transparent;
+
+            var referencePoint = (Radius * 2) + 1;
+            Transform.Size = new Vector2(referencePoint, referencePoint);
+            renderer.Begin();
+
+            var center = new Vector2((referencePoint - 1) / 2, (referencePoint - 1) / 2);
+            var currentPoint = new Vector2(0, Radius);
+            var innerPoint = new Vector2(0, Radius - _StrokeWidth);
+            //var p = 1 - Radius; // Radius or point.x
+            var p = 1 - currentPoint.Y; // Radius or point.y
+            var p1 = 1 - innerPoint.Y; // Radius or point.y
+
+            //var plotPoint = center;
+
+
+            while (currentPoint.X <= currentPoint.Y)
+            {
+#region Comment
+                // In an array, Y is larger when we go DOWN
+                //              X is larger when we go RIGHT
+                // To normalize that, and center around a point
+                // We add the center's X to the current point's X
+                // And that works correctly, because if the curernt point's X goes negative
+                // Then adding it to the center point would cause it to to go to the LEFT
+                // Which in a cartesian set is valid
+
+                // We change the symbol of the current point's Y and THEN add the center's Y to it
+                // This way, when the current point's Y goes UP, it actually goes DOWN, and vise versa
+                // In fact, the logic is simplified by just subtracting the center's Y from the current point's Y
+                /*
+                 *
+                 *
+                 *
+                     0   0  0  0
+                     1   0  1  0
+                     2   0  0  0
+
+                         0  1  2
+                ======================
+                     1   0  0  0
+                     0   0  1  0
+                    -1   0  0  0
+    
+                        -1  0  1
+                 *
+                 *
+                 */
+#endregion
+#region Draw outer Dots
+                var drawPoint = new Vector2(currentPoint.X + center.X, center.Y - currentPoint.Y);
+                var secondDraw = center + currentPoint;
+                var thirdDraw = new Vector2(-currentPoint.X + center.X, center.Y - currentPoint.Y);
+
+
+                //renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, secondDraw.Y, Color.Black);
+
+                // Octant 1 // TOP RIGHT
+                renderer.SetPixel(drawPoint.X, drawPoint.Y, StrokeColor);
+                // Octant 6 // BOTTOM LEFT
+                renderer.SetPixel(drawPoint.Y, drawPoint.X, StrokeColor);
+
+                // Octant 4 // BOTTOM
+                renderer.SetPixel(secondDraw.X, secondDraw.Y, StrokeColor);
+                // Octant 3 // BOTTOM LEFT
+                renderer.SetPixel(secondDraw.Y, secondDraw.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw.X, thirdDraw.Y, StrokeColor);
+                renderer.SetPixel(thirdDraw.Y, thirdDraw.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw.X, secondDraw.Y, StrokeColor);
+                renderer.SetPixel(secondDraw.Y, thirdDraw.X, StrokeColor);
+                currentPoint.X++;
+#endregion
+
+#region Draw inner
+                var drawPoint2 = new Vector2(innerPoint.X + center.X, center.Y - innerPoint.Y);
+                var secondDraw2 = center + innerPoint;
+                var thirdDraw2 = new Vector2(-innerPoint.X + center.X, center.Y - innerPoint.Y);
+
+                // Octant 1 // TOP RIGHT
+                renderer.SetPixel(drawPoint2.X, drawPoint2.Y, StrokeColor);
+                // Octant 6 // BOTTOM LEFT
+                renderer.SetPixel(drawPoint2.Y, drawPoint2.X, StrokeColor);
+
+                // Octant 4 // BOTTOM
+                renderer.SetPixel(secondDraw2.X, secondDraw2.Y, StrokeColor);
+                // Octant 3 // BOTTOM LEFT
+                renderer.SetPixel(secondDraw2.Y, secondDraw2.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw2.X, thirdDraw2.Y, StrokeColor);
+                renderer.SetPixel(thirdDraw2.Y, thirdDraw2.X, StrokeColor);
+
+                renderer.SetPixel(thirdDraw2.X, secondDraw2.Y, StrokeColor);
+                renderer.SetPixel(secondDraw2.Y, thirdDraw2.X, StrokeColor);
+#endregion
+
+#region Draw Stroke
+                renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, drawPoint2.Y, StrokeColor);
+                renderer.DrawVerticalLine(secondDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor);
+                renderer.DrawVerticalLine(thirdDraw.X, thirdDraw.Y, thirdDraw2.Y, StrokeColor);
+                renderer.DrawVerticalLine(thirdDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor);
+
+                renderer.DrawHorizontalLine(drawPoint.Y, drawPoint2.Y, drawPoint.X, StrokeColor);
+                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, secondDraw.X, StrokeColor);
+                renderer.DrawHorizontalLine(thirdDraw.Y, thirdDraw2.Y, thirdDraw.X, StrokeColor);
+                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, thirdDraw.X, StrokeColor);
+#endregion
+
+#region Fill
+
+#endregion
+
+                if (p < 0)
+                {
+                    p += (2 * (int)currentPoint.X) + 1;
+                }
+                else
+                {
+                    currentPoint.Y--;
+                    p -= (2 * (int)currentPoint.Y) - (2 * (int)currentPoint.X) + 1;
+                }
+
+                if (currentPoint.X > innerPoint.X)
+                {
+                    innerPoint.X = currentPoint.X;
+                }
+                if (p1 < 0)
+                {
+                    p1 += (2 * (int)innerPoint.X) + 1;
+                }
+                else
+                {
+                    innerPoint.Y--;
+                    p1 -= (2 * (int)innerPoint.Y) - (2 * (int)innerPoint.X) + 1;
+                }
+            }
+            renderer.End();
+        }
+
+        public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
+        {
+
+        }
+    }
+}
+
+#endif

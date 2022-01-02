@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>Ref prop</Title>
+            <Shortcut>refprop</Shortcut>
+        </Header>
+        <Snippet>
+            <Code Language="CSharp"><![CDATA[public ref $Type$ $Name$ {get => ref _$Name$; }
+
+    private $Type$ _$Name$;
+    $end$]]>
+            </Code>
+            <Declarations>
+            <Literal>
+              <ID>Type</ID>
+              <ToolTip>Property Type.</ToolTip>
+              <Default>object</Default>
+            </Literal>
+            <Literal>
+              <ID>Name</ID>
+              <ToolTip>Property Name.</ToolTip>
+              <Default>MyProperty</Default>
+            </Literal>
+          </Declarations>
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>
