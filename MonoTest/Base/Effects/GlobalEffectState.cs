@@ -10,6 +10,7 @@ namespace MonoTest.Base.Effects
     public static class GlobalEffectState
     {
         public static Effect TintShader { get; set; }
-        
+        public static Effect BoxBlurShader { get; set; }
+
     }
 }

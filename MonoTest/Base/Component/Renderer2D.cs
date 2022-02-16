@@ -16,6 +16,10 @@ namespace MonoTest.Base.Component
         private Texture2D backingTexture;
         private Color[] backingData;
         private IElement parent;
+        private bool initialized;
+        private int currentPercentage;
+        private int lastPosition;
+
         public IElement Parent { get => parent; set { if (parent == null) parent = value; } }
 
         public Renderer2D()
@@ -29,18 +33,19 @@ namespace MonoTest.Base.Component
 
         public void Begin()
         {
+            initialized = false;
             backingTexture = new Texture2D(GlobalState.GrphDevMngr.GraphicsDevice, (int)parent.Transform.Size.X, (int)parent.Transform.Size.Y);
             backingData = new Color[backingTexture.Width * backingTexture.Height];
         }
 
         public void SetPixel(int x, int y, Color color)
         {
-            backingData[x + (y * backingTexture.Height)] = color;
+            backingData[x + (y * backingTexture.Width)] = color;
         }
 
         public void SetPixel(float x, float y, Color color)
         {
-            backingData[(int)x + ((int)y * backingTexture.Height)] = color;
+            backingData[(int)x + ((int)y * backingTexture.Width)] = color;
         }
 
 
@@ -54,7 +59,7 @@ namespace MonoTest.Base.Component
             }
             while(y1 < y2)
             {
-                if (backingData[(int)x + ((int)y1 * backingTexture.Height)] != default && onlyIfDefault)
+                if (backingData[(int)x + ((int)y1 * backingTexture.Width)] != default && onlyIfDefault)
                 {
                     y1++;
                     continue;
@@ -69,7 +74,7 @@ namespace MonoTest.Base.Component
                     //    backingData[(int)x + ((int)y1 * backingTexture.Height)] = Color.BlueViolet;
                     //}
                 }
-                backingData[(int)x + ((int)y1 * backingTexture.Height)] = color;
+                backingData[(int)x + ((int)y1 * backingTexture.Width)] = color;
                 y1++;
             }
         }
@@ -84,14 +89,37 @@ namespace MonoTest.Base.Component
             }
             while(x1 < x2)
             {
-                if(backingData[(int)x1 + ((int)y * backingTexture.Height)] != default && onlyIfDefault)
+                if(backingData[(int)x1 + ((int)y * backingTexture.Width)] != default && onlyIfDefault)
                 {
                     x1++;
                     continue;
                 }
-                backingData[(int)x1 + ((int)y * backingTexture.Height)] = color;
+                backingData[(int)x1 + ((int)y * backingTexture.Width)] = color;
                 x1++;
             }
+        }
+
+        internal void Fill(Color color)
+        {
+            for(int i = 0; i < backingData.Length; i++)
+            {
+                backingData[i] = color;
+            }
+        }
+
+        internal void FillPartial(Color color, int percentage)
+        {
+            currentPercentage += percentage;
+
+            if (currentPercentage > 100)
+                return;
+
+            var end = (int)(backingData.Length * (currentPercentage / 100f));
+            for (int i = lastPosition; i < end; i++)
+            {
+                backingData[i] = color;
+            }
+            lastPosition = (int)end;
         }
 
         public bool End()
@@ -99,6 +127,7 @@ namespace MonoTest.Base.Component
             try
             {
                 backingTexture.SetData(backingData);
+                initialized = true;
                 return true;
             }
             catch(Exception)
@@ -109,7 +138,14 @@ namespace MonoTest.Base.Component
 
         public void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(backingTexture, parent.Transform.Position, null, Color.White, 0, Vector2.Zero, parent.Transform.Scale, SpriteEffects.None, 0);
+            if(!initialized)
+            {
+                if(!End())
+                {
+                    throw new AccessViolationException("Tried to set the data to the texture but wasn't allowed");
+                }
+            }
+            spriteBatch.Draw(backingTexture, parent.Transform.Position, null, Color.White, 0, parent.Transform.Origin, parent.Transform.Scale, SpriteEffects.None, 0);
 
         }
     }

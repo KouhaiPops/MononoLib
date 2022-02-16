@@ -8,8 +8,19 @@ namespace MonoTest.Base.Scene
 {
     class BaseScene : IScene<IDrawable, IGameElement>, IDrawable
     {
+        public enum ScrollEvent
+        {
+            Up = 0,
+            Down = 1,
+        }
+        private int wheelVal = 0;
+
         private bool isHeld = false;
+        public event Action<Vector2> OnMouseRelease;
         public event Action<Vector2> OnMouseClick;
+        public event Action<Vector2> OnMouseHold;
+        public event Action<ScrollEvent> OnScroll;
+
         public HashSet<IDrawable> Drawables { get; set; }
         public HashSet<IGameElement> StaticBehaviours { get; set; }
         public DrawActions.PreDrawAction PreDraw { get; set; }
@@ -22,7 +33,7 @@ namespace MonoTest.Base.Scene
             
         }
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             foreach (var drawable in Drawables)
             {
@@ -30,14 +41,40 @@ namespace MonoTest.Base.Scene
             }
         }
 
-        public void Update(GameTime gameTime)
+        public void Handle(GameTime gameTime)
         {
             var mouse = Microsoft.Xna.Framework.Input.Mouse.GetState();
-            if (isHeld && mouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released)
+            var wheelDelta = mouse.ScrollWheelValue - wheelVal;
+            wheelVal = mouse.ScrollWheelValue;
+            if(wheelDelta < 0)
             {
-                OnMouseClick(new Vector2(mouse.X, mouse.Y));
+                OnScroll?.Invoke(ScrollEvent.Down);
             }
+            else if(wheelDelta > 0)
+            {
+                OnScroll?.Invoke(ScrollEvent.Up);
+            }
+            var mousePos = new Vector2(mouse.X, mouse.Y);
+            if (isHeld)
+            {
+                OnMouseHold?.Invoke(mousePos);
+            }
+            if (!isHeld && mouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
+            {
+                OnMouseClick?.Invoke(mousePos);
+            }
+            else if(isHeld && mouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released)
+            {
+                OnMouseRelease?.Invoke(mousePos);
+            }
+
             isHeld = mouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            //InputManager.Handle(gametime)
+            Handle(gameTime);
             foreach (var drawable in Drawables)
             {
                 drawable.Update(gameTime);

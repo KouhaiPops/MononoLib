@@ -1,10 +1,8 @@
-﻿#define NEW
-
-#if NEW
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using MonoTest.Base.Component;
+using MonoTest.Base.Effects;
 using MonoTest.Base.State;
 
 using System;
@@ -17,6 +15,7 @@ namespace MonoTest.Base.Primitives
 {
     public class Circle : BaseElement, IDrawable
     {
+        private BoxBlur blur { get; set;  }
         public ref int StrokeWidth { get => ref _StrokeWidth; }
 
         private int _StrokeWidth;
@@ -35,12 +34,18 @@ namespace MonoTest.Base.Primitives
 
         public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.GameTime gameTime)
         {
-            PreDraw(spriteBatch, gameTime);
+            PreDraw(spriteBatch, gameTime, blur);
             renderer.Render(spriteBatch);
             PostDraw(spriteBatch, gameTime);
         }
 
         public int Radius { get; }
+
+        public Circle SetPos(Vector2 pos)
+        {
+            Transform.Position = pos;
+            return this;
+        }
 
         public Circle(int radius) : this(radius, 1)
         {
@@ -56,12 +61,11 @@ namespace MonoTest.Base.Primitives
 
         public Circle(int radius, int strokeWidth, Color strokeColor, Color fill)
         {
+            blur = new BoxBlur(Vector2.Zero);
             _StrokeWidth = strokeWidth;
             _StrokeColor = strokeColor;
             _Fill = fill;
 
-            Transform.Position = new Vector2(150, 150);
-            Transform.Scale *= 4;
             renderer = new()
             {
                 Parent = this
@@ -78,25 +82,14 @@ namespace MonoTest.Base.Primitives
             if (!isConstructed)
                 return;
 
-
-
             var shouldFill = _Fill != Color.Transparent;
-
             var referencePoint = (Radius * 2) + 1;
             Transform.Size = new Vector2(referencePoint, referencePoint);
+            blur.Size = Transform.Size;
             renderer.Begin();
-
             var center = new Vector2((referencePoint - 1) / 2, (referencePoint - 1) / 2);
-            if(!shouldFill)
-            {
-                draw_circle_bresenham((int)center.X, (int)center.Y, Radius, StrokeWidth);
-                renderer.End();
-                return;
-            }
-
             var currentPoint = new Vector2(0, Radius);
             var innerPoint = new Vector2(0, Radius - _StrokeWidth);
-            //var p = 1 - Radius; // Radius or point.x
             var p = 1 - currentPoint.Y; // Radius or point.y
             var p1 = 1 - innerPoint.Y; // Radius or point.y
 
@@ -138,79 +131,43 @@ namespace MonoTest.Base.Primitives
                 #endregion
                 #region Draw outer Dots
                 var drawPoint = new Vector2(currentPoint.X + center.X, center.Y - currentPoint.Y);
-                var secondDraw = center + currentPoint;
-                var thirdDraw = new Vector2(-currentPoint.X + center.X, center.Y - currentPoint.Y);
-
-
-                //renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, secondDraw.Y, Color.Black);
-
-                // Octant 1 // TOP RIGHT
-                //renderer.SetPixel(drawPoint.X, drawPoint.Y, StrokeColor);
-                ////// Octant 6 // BOTTOM LEFT
-                //renderer.SetPixel(drawPoint.Y, drawPoint.X, StrokeColor);
-
-                ////// Octant 4 // BOTTOM
-                //renderer.SetPixel(secondDraw.X, secondDraw.Y, StrokeColor);
-                //// Octant 3 // BOTTOM LEFT
-                //renderer.SetPixel(secondDraw.Y, secondDraw.X, StrokeColor);
-
-                //renderer.SetPixel(thirdDraw.X, thirdDraw.Y, StrokeColor);
-                //renderer.SetPixel(thirdDraw.Y, thirdDraw.X, StrokeColor);
-
-                //renderer.SetPixel(thirdDraw.X, secondDraw.Y, StrokeColor);
-                //renderer.SetPixel(secondDraw.Y, thirdDraw.X, StrokeColor);
+                var y2 = center.Y + currentPoint.Y;
+                var x2 = -currentPoint.X + center.X;
                 currentPoint.X++;
                 #endregion
 
                 #region Draw inner
                 var drawPoint2 = new Vector2(innerPoint.X + center.X, center.Y - innerPoint.Y);
-                var secondDraw2 = center + innerPoint;
-                var thirdDraw2 = new Vector2(-innerPoint.X + center.X, center.Y - innerPoint.Y);
-
-                //// Octant 1 // TOP RIGHT
-                //renderer.SetPixel(drawPoint.X, drawPoint2.Y, StrokeColor);
-                //// Octant 6 // BOTTOM LEFT
-                //renderer.SetPixel(drawPoint2.Y, drawPoint.X, StrokeColor);
-
-                //// Octant 4 // BOTTOM
-                //renderer.SetPixel(secondDraw.X, secondDraw2.Y, StrokeColor);
-                //// Octant 3 // BOTTOM LEFT
-                //renderer.SetPixel(secondDraw2.Y, secondDraw.X, StrokeColor);
-
-                //renderer.SetPixel(thirdDraw.X, thirdDraw2.Y, StrokeColor);
-                //renderer.SetPixel(thirdDraw2.Y, thirdDraw.X, StrokeColor);
-
-                //renderer.SetPixel(thirdDraw.X, secondDraw2.Y, StrokeColor);
-                //renderer.SetPixel(secondDraw2.Y, thirdDraw.X, StrokeColor);
+                var iY2 = center.Y + innerPoint.Y;
                 #endregion
 
                 #region Fill
                 if (shouldFill)
                 {
-                    renderer.DrawHorizontalLine(drawPoint2.Y, secondDraw2.Y, drawPoint.X, Fill, true);
-                    renderer.DrawHorizontalLine(thirdDraw2.Y, secondDraw2.Y, thirdDraw.X, Fill, true);
-                    renderer.DrawHorizontalLine(secondDraw2.Y, secondDraw2.Y, thirdDraw.X, Fill, true);
-                    renderer.DrawHorizontalLine(thirdDraw.X, drawPoint2.Y, secondDraw2.Y, Fill, true);
+                    renderer.DrawHorizontalLine(drawPoint2.Y, iY2, drawPoint.X, Fill, shouldFill);
+                    renderer.DrawHorizontalLine(drawPoint2.Y, iY2, x2, Fill, shouldFill);
 
-                    renderer.DrawVerticalLine(drawPoint.X, drawPoint2.Y, secondDraw2.Y, Fill, true);
-                    renderer.DrawVerticalLine(thirdDraw.X, drawPoint2.Y, secondDraw2.Y, Fill, true);
-                    renderer.DrawVerticalLine(secondDraw.X, secondDraw2.Y, thirdDraw2.Y, Fill, true);
+                    renderer.DrawVerticalLine(drawPoint.X, drawPoint2.Y, iY2, Fill, shouldFill);
+                    renderer.DrawVerticalLine(x2, drawPoint2.Y, iY2, Fill, shouldFill);
+
                 }
                 #endregion
 
                 #region Draw Stroke
                 renderer.DrawVerticalLine(drawPoint.X - 1, drawPoint.Y, drawPoint2.Y, StrokeColor); // 1
-                renderer.DrawVerticalLine(secondDraw.X - 1, secondDraw.Y, secondDraw2.Y, StrokeColor); // 4
-                renderer.DrawVerticalLine(thirdDraw.X, thirdDraw.Y, thirdDraw2.Y, StrokeColor); // 8
-                renderer.DrawVerticalLine(thirdDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor); // 5
+                renderer.DrawVerticalLine(drawPoint.X - 1, y2, iY2, StrokeColor); // 4
+                renderer.DrawVerticalLine(x2, drawPoint.Y, drawPoint2.Y, StrokeColor); // 8
+                renderer.DrawVerticalLine(x2, y2, iY2, StrokeColor); // 5
 
                 renderer.DrawHorizontalLine(drawPoint.Y, drawPoint2.Y, drawPoint.X - 1, StrokeColor); // 6
-                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, secondDraw.X - 1, StrokeColor); // 3
-                renderer.DrawHorizontalLine(thirdDraw.Y, thirdDraw2.Y, thirdDraw.X, StrokeColor); // 7
-                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, thirdDraw.X, StrokeColor); // 2
+                renderer.DrawHorizontalLine(y2, iY2, drawPoint.X - 1, StrokeColor); // 3
+                renderer.DrawHorizontalLine(drawPoint.Y, drawPoint2.Y, x2, StrokeColor); // 7
+                renderer.DrawHorizontalLine(y2, iY2, x2, StrokeColor); // 2
                 #endregion
 
 
+
+                #region Determinator
                 if (p < 0)
                 {
                     p += (2 * (int)currentPoint.X) + 1;
@@ -237,299 +194,7 @@ namespace MonoTest.Base.Primitives
                 {
                     innerPoint.Y = currentPoint.X - 1;
                 }
-                else
-                {
-                    //innerPoint.Y = currentPoint.Y -
-                }
-            }
-            renderer.End();
-        }
-        void draw_circle_bresenham(int x0, int y0, int radius, int thickness)
-        {
-            int f = 1 - radius;
-            int ddF_x = 0;
-            int ddF_y = -2 * radius;
-            int x = 0;
-            int y = radius;
-            int y1;
-            int i_y = radius - thickness;
-            int thickness_inner = thickness;
-            int i_f = 1 - i_y;
-            int i_ddF_x = 0;
-            int i_ddF_y = -2 * i_y;
-            int i;
-
-            while (x < y)
-            {
-                if (f >= 0)
-                {
-                    y--;
-                    ddF_y += 2;
-                    f += ddF_y;
-                }
-                /* inner circle*/
-                if (i_f >= 0)
-                {
-                    i_y--;
-                    i_ddF_y += 2;
-                    i_f += i_ddF_y;
-                }
-                x++;
-                ddF_x += 2;
-                f += ddF_x + 1;
-
-                /* inner circle*/
-                i_ddF_x += 2;
-                i_f += i_ddF_x + 1;
-
-                if (x > i_y)
-                {
-                    /* Distance between outer circle and 45-degree angle */
-                    /* plus one pixel so there's no gap */
-                    thickness_inner = y - x + 1;
-                }
-                else
-                {
-                    /* Distance between outer and inner circle */
-                    thickness_inner = y - i_y;
-                }
-
-                /* Numbers represent parts of circle function draw in radians
-                   interval: [number - 1 * pi / 4, number * pi / 4] */
-                for (i = 0; i < thickness_inner; i++)
-                {
-                    y1 = y - i;
-                    renderer.SetPixel(x0 + x - 1, y0 + y1 - 1, StrokeColor); /* 7 */
-                    renderer.SetPixel(x0 - x, y0 + y1 - 1, StrokeColor); /* 6 */
-                    renderer.SetPixel(x0 + x - 1, y0 - y1, StrokeColor); /* 2 */
-                    renderer.SetPixel(x0 - x, y0 - y1, StrokeColor); /* 3 */
-                    renderer.SetPixel(x0 + y1 - 1, y0 + x - 1, StrokeColor); /* 8 */
-                    renderer.SetPixel(x0 + y1 - 1, y0 - x, StrokeColor); /* 1 */
-                    renderer.SetPixel(x0 - y1, y0 + x - 1, StrokeColor); /* 5 */
-                    renderer.SetPixel(x0 - y1, y0 - x, StrokeColor); /* 4 */
-                }
-            }
-        }
-        public override void Update(Microsoft.Xna.Framework.GameTime gameTime)
-        {
-
-        }
-    }
-}
-#else
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
-using MonoTest.Base.Component;
-using MonoTest.Base.State;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MonoTest.Base.Primitives
-{
-    public class Circle : BaseElement, IDrawable
-    {
-        public ref int StrokeWidth { get => ref _StrokeWidth; }
-
-        private int _StrokeWidth;
-        public ref Color StrokeColor { get => ref _StrokeColor; }
-
-        private Color _StrokeColor;
-
-        public ref Color Fill { get => ref _Fill; }
-
-        private Color _Fill;
-
-        private Renderer2D renderer;
-        private bool isConstructed = false;
-        public DrawActions.PreDrawAction PreDraw { get; set; } = DrawBase.PreDraw;
-        public DrawActions.PostDrawAction PostDraw { get; set; } = DrawBase.PostDraw;
-
-        public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.GameTime gameTime)
-        {
-            PreDraw(spriteBatch, gameTime);
-            renderer.Render(spriteBatch);
-            PostDraw(spriteBatch, gameTime);
-        }
-
-        public int Radius { get; }
-
-        public Circle(int radius) : this(radius, 1)
-        {
-        }
-
-        public Circle(int radius, int strokeWidth) : this(radius, strokeWidth, Color.Black)
-        {
-        }
-
-        public Circle(int radius, int strokeWidth, Color strokeColor) : this(radius, strokeWidth, strokeColor, Color.Transparent)
-        {
-        }
-
-        public Circle(int radius, int strokeWidth, Color strokeColor, Color fill)
-        {
-            _StrokeWidth = strokeWidth;
-            _StrokeColor = strokeColor;
-            _Fill = fill;
-
-            Transform.Position = new Vector2(200, 200);
-            renderer = new()
-            {
-                Parent = this
-            };
-            AddComponent(renderer);
-            Radius = radius;
-            isConstructed = true;
-            Initialize();
-
-        }
-
-        public override void Initialize()
-        {
-            if (!isConstructed)
-                return;
-
-
-            var shouldFill = _Fill != Color.Transparent;
-
-            var referencePoint = (Radius * 2) + 1;
-            Transform.Size = new Vector2(referencePoint, referencePoint);
-            renderer.Begin();
-
-            var center = new Vector2((referencePoint - 1) / 2, (referencePoint - 1) / 2);
-            var currentPoint = new Vector2(0, Radius);
-            var innerPoint = new Vector2(0, Radius - _StrokeWidth);
-            //var p = 1 - Radius; // Radius or point.x
-            var p = 1 - currentPoint.Y; // Radius or point.y
-            var p1 = 1 - innerPoint.Y; // Radius or point.y
-
-            //var plotPoint = center;
-
-
-            while (currentPoint.X <= currentPoint.Y)
-            {
-#region Comment
-                // In an array, Y is larger when we go DOWN
-                //              X is larger when we go RIGHT
-                // To normalize that, and center around a point
-                // We add the center's X to the current point's X
-                // And that works correctly, because if the curernt point's X goes negative
-                // Then adding it to the center point would cause it to to go to the LEFT
-                // Which in a cartesian set is valid
-
-                // We change the symbol of the current point's Y and THEN add the center's Y to it
-                // This way, when the current point's Y goes UP, it actually goes DOWN, and vise versa
-                // In fact, the logic is simplified by just subtracting the center's Y from the current point's Y
-                /*
-                 *
-                 *
-                 *
-                     0   0  0  0
-                     1   0  1  0
-                     2   0  0  0
-
-                         0  1  2
-                ======================
-                     1   0  0  0
-                     0   0  1  0
-                    -1   0  0  0
-    
-                        -1  0  1
-                 *
-                 *
-                 */
-#endregion
-#region Draw outer Dots
-                var drawPoint = new Vector2(currentPoint.X + center.X, center.Y - currentPoint.Y);
-                var secondDraw = center + currentPoint;
-                var thirdDraw = new Vector2(-currentPoint.X + center.X, center.Y - currentPoint.Y);
-
-
-                //renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, secondDraw.Y, Color.Black);
-
-                // Octant 1 // TOP RIGHT
-                renderer.SetPixel(drawPoint.X, drawPoint.Y, StrokeColor);
-                // Octant 6 // BOTTOM LEFT
-                renderer.SetPixel(drawPoint.Y, drawPoint.X, StrokeColor);
-
-                // Octant 4 // BOTTOM
-                renderer.SetPixel(secondDraw.X, secondDraw.Y, StrokeColor);
-                // Octant 3 // BOTTOM LEFT
-                renderer.SetPixel(secondDraw.Y, secondDraw.X, StrokeColor);
-
-                renderer.SetPixel(thirdDraw.X, thirdDraw.Y, StrokeColor);
-                renderer.SetPixel(thirdDraw.Y, thirdDraw.X, StrokeColor);
-
-                renderer.SetPixel(thirdDraw.X, secondDraw.Y, StrokeColor);
-                renderer.SetPixel(secondDraw.Y, thirdDraw.X, StrokeColor);
-                currentPoint.X++;
-#endregion
-
-#region Draw inner
-                var drawPoint2 = new Vector2(innerPoint.X + center.X, center.Y - innerPoint.Y);
-                var secondDraw2 = center + innerPoint;
-                var thirdDraw2 = new Vector2(-innerPoint.X + center.X, center.Y - innerPoint.Y);
-
-                // Octant 1 // TOP RIGHT
-                renderer.SetPixel(drawPoint2.X, drawPoint2.Y, StrokeColor);
-                // Octant 6 // BOTTOM LEFT
-                renderer.SetPixel(drawPoint2.Y, drawPoint2.X, StrokeColor);
-
-                // Octant 4 // BOTTOM
-                renderer.SetPixel(secondDraw2.X, secondDraw2.Y, StrokeColor);
-                // Octant 3 // BOTTOM LEFT
-                renderer.SetPixel(secondDraw2.Y, secondDraw2.X, StrokeColor);
-
-                renderer.SetPixel(thirdDraw2.X, thirdDraw2.Y, StrokeColor);
-                renderer.SetPixel(thirdDraw2.Y, thirdDraw2.X, StrokeColor);
-
-                renderer.SetPixel(thirdDraw2.X, secondDraw2.Y, StrokeColor);
-                renderer.SetPixel(secondDraw2.Y, thirdDraw2.X, StrokeColor);
-#endregion
-
-#region Draw Stroke
-                renderer.DrawVerticalLine(drawPoint.X, drawPoint.Y, drawPoint2.Y, StrokeColor);
-                renderer.DrawVerticalLine(secondDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor);
-                renderer.DrawVerticalLine(thirdDraw.X, thirdDraw.Y, thirdDraw2.Y, StrokeColor);
-                renderer.DrawVerticalLine(thirdDraw.X, secondDraw.Y, secondDraw2.Y, StrokeColor);
-
-                renderer.DrawHorizontalLine(drawPoint.Y, drawPoint2.Y, drawPoint.X, StrokeColor);
-                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, secondDraw.X, StrokeColor);
-                renderer.DrawHorizontalLine(thirdDraw.Y, thirdDraw2.Y, thirdDraw.X, StrokeColor);
-                renderer.DrawHorizontalLine(secondDraw.Y, secondDraw2.Y, thirdDraw.X, StrokeColor);
-#endregion
-
-#region Fill
-
-#endregion
-
-                if (p < 0)
-                {
-                    p += (2 * (int)currentPoint.X) + 1;
-                }
-                else
-                {
-                    currentPoint.Y--;
-                    p -= (2 * (int)currentPoint.Y) - (2 * (int)currentPoint.X) + 1;
-                }
-
-                if (currentPoint.X > innerPoint.X)
-                {
-                    innerPoint.X = currentPoint.X;
-                }
-                if (p1 < 0)
-                {
-                    p1 += (2 * (int)innerPoint.X) + 1;
-                }
-                else
-                {
-                    innerPoint.Y--;
-                    p1 -= (2 * (int)innerPoint.Y) - (2 * (int)innerPoint.X) + 1;
-                }
+                #endregion
             }
             renderer.End();
         }
@@ -540,5 +205,3 @@ namespace MonoTest.Base.Primitives
         }
     }
 }
-
-#endif

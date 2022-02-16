@@ -56,7 +56,11 @@ namespace MonoTest.Base.Component
 
         public Transform Parent { get; internal set; }
         
-        public Vector2 Origin => _origin;
+        // TODO, with the current design origin should be immutable
+        // But this limits the user to only 4 axis to pivot around (by updating the originPivot)
+        // A work around for now is making the origin a ref value type
+        // This should be removed
+        public ref Vector2 Origin { get => ref _origin;}
         private Vector2 _origin = Vector2.Zero;
 
         private void UpdateOrigin()

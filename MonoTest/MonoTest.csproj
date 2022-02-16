@@ -41,4 +41,9 @@
   <ItemGroup>
     <Folder Include="PowderGame\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GraphicPrimitives">
+      <HintPath>..\..\GraphicPrimitives\GraphicPrimitives\bin\Debug\netcoreapp3.1\GraphicPrimitives.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

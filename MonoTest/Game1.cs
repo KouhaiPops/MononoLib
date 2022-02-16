@@ -5,7 +5,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 using MonoTest.Base.Effects;
+using MonoTest.Base.Scene;
 using MonoTest.Base.State;
+using MonoTest.Chip.Engine;
 using MonoTest.Scenes;
 
 namespace MonoTest
@@ -14,7 +16,7 @@ namespace MonoTest
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private MainMenu mainMenu;
+        private BaseScene mainMenu;
         Effect effect;
 
         public Game1()
@@ -29,7 +31,9 @@ namespace MonoTest
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            _graphics.PreferredBackBufferWidth = 800;
+            _graphics.PreferredBackBufferHeight = 800;
+            _graphics.ApplyChanges();
             base.Initialize();
         }
 
@@ -37,8 +41,10 @@ namespace MonoTest
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             GlobalEffectState.TintShader = Content.Load<Effect>("BasicShader");
+            GlobalEffectState.BoxBlurShader = Content.Load<Effect>("BoxBlur");
             Debug.Stats.Initialize(this);
-            mainMenu = new MainMenu();
+            //mainMenu = new ChipScene();
+            mainMenu = new TestScenes.CircleScene();
 
             // TODO: use this.Content to load your game content here
         }
