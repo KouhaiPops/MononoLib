@@ -7,6 +7,7 @@ namespace MonoTest
         [STAThread]
         static void Main()
         {
+            Debug.DebugTerminal.Initialize();
             using (var game = new Game1())
                 game.Run();
         }

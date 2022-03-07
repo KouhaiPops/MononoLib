@@ -14,6 +14,7 @@ namespace MonoTest
 {
     public class Game1 : Game
     {
+        public static Texture2D CurrentTexture { get; private set; }
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private BaseScene mainMenu;
@@ -42,9 +43,11 @@ namespace MonoTest
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             GlobalEffectState.TintShader = Content.Load<Effect>("BasicShader");
             GlobalEffectState.BoxBlurShader = Content.Load<Effect>("BoxBlur");
+            CurrentTexture = Content.Load<Texture2D>("TextureSample");
             Debug.Stats.Initialize(this);
             //mainMenu = new ChipScene();
-            mainMenu = new TestScenes.CircleScene();
+            //mainMenu = new TestScenes.CircleScene();
+            mainMenu = new MainMenu();
 
             // TODO: use this.Content to load your game content here
         }
@@ -68,6 +71,7 @@ namespace MonoTest
             //effect.CurrentTechnique.Passes[0].Apply();
             mainMenu.Draw(_spriteBatch, gameTime);
             Debug.Stats.ShowStats(_spriteBatch, gameTime);
+            //Debug.GraphicsDebugger.DrawDebugRect(_spriteBatch, Vector2.Zero, Vector2.One * 100);
             //_spriteBatch.End();
             base.Draw(gameTime);
         }

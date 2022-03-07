@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework;
+using MonoTest.Base.Graphics;
+using MonoTest.Base.Input;
 
 namespace MonoTest.Base.Scene
 {
@@ -20,6 +22,8 @@ namespace MonoTest.Base.Scene
         public event Action<Vector2> OnMouseClick;
         public event Action<Vector2> OnMouseHold;
         public event Action<ScrollEvent> OnScroll;
+        public ICamera Camera { get; set; } = new BaseCamera();
+
 
         public HashSet<IDrawable> Drawables { get; set; }
         public HashSet<IGameElement> StaticBehaviours { get; set; }
@@ -28,6 +32,7 @@ namespace MonoTest.Base.Scene
 
         public BaseScene()
         {
+            Input.KeyboardController.Initialize();
             Drawables = new HashSet<IDrawable>();
             StaticBehaviours = new HashSet<IGameElement>();
             
@@ -35,14 +40,17 @@ namespace MonoTest.Base.Scene
 
         public virtual void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+            spriteBatch.Begin(transformMatrix: Camera.GetTransform());
             foreach (var drawable in Drawables)
             {
                 drawable.Draw(spriteBatch, gameTime);
             }
+            spriteBatch.End();
         }
 
         public void Handle(GameTime gameTime)
         {
+            KeyboardController.CheckInput(gameTime);
             var mouse = Microsoft.Xna.Framework.Input.Mouse.GetState();
             var wheelDelta = mouse.ScrollWheelValue - wheelVal;
             wheelVal = mouse.ScrollWheelValue;
@@ -89,12 +97,20 @@ namespace MonoTest.Base.Scene
         public IScene<IDrawable, IGameElement> AddDrawable(IDrawable drawable)
         {
             Drawables.Add(drawable);
+            if (drawable is IElement element)
+            {
+                element.Initialize();
+            }
             return this;
         }
 
         public IScene<IDrawable, IGameElement> RemoveDrawable(IDrawable drawable)
         {
             Drawables.Remove(drawable);
+            if(drawable is IElement element)
+            {
+                element.Removed();
+            }
             return this;
         }
 

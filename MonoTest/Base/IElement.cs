@@ -19,6 +19,7 @@ namespace MonoTest.Base
         public HashSet<IElement> Children { get; set; }
         public Dictionary<Type, IComponent> Components { get; set; }
         public void Initialize();
+        public void Removed();
         public void Update(GameTime gameTime);
         public void AddComponent(IComponent component);
         public void RemoveComponent(IComponent component);

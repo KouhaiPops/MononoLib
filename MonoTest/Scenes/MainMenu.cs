@@ -13,48 +13,23 @@ namespace MonoTest.Scenes
     {
         public MainMenu() : base()
         {
-            AddDrawable(new Background(GlobalState.GrphDevMngr.GraphicsDevice, new Vector2(250, 250), new Vector2(0, 0), Color.Red));
-            AddDrawable(new Text());
-            //var line = new StraightLine(new Core.Vector2i(0, 0), new Core.Vector2i(255, 255), Color.Black);
-            //var thickness = 1;
+            //AddDrawable(new Background(GlobalState.GrphDevMngr.GraphicsDevice, new Vector2(250, 250), new Vector2(0, 0), Color.Red));
+            //AddDrawable(new Text());
+
+            //AddDrawable(new Button(400, 400));
+            //var line = new StraightLine(new Core.Vector2i(0, 0), Core.Vector2i.Unit * 50, Color.Blue);
+            //var line = new StraightLine(new Core.Vector2i(0, 0), Core.Vector2i.Unit * 50, Color.Blue);
             //AddDrawable(line);
-            //RectanglePrimv current = null;
-            //Vector2 startPoint = default;
-            //OnMouseClick += (v) =>
+            //base.OnMouseHold += (mousePos) =>
             //{
-            //    startPoint = v;
+            //    line.SetEnd(mousePos);
             //};
-
-            //OnMouseHold += (v) =>
-            //{
-            //    if (current == null)
-            //    {
-            //        current = new RectanglePrimv((int)(v.X - startPoint.X),  (int)(v.Y - startPoint.Y), Color.Black, startPoint, 1, Color.Black);
-            //        AddDrawable(current);
-            //    }
-            //    else
-            //    {
-            //        current.SetDimension(v-startPoint);
-            //    }
-            //};
-
-            //OnMouseRelease += (_) =>
-            //{
-            //    current = null;
-            //};
-            //AddDrawable(new RectanglePrimv(100, 100, Color.Blue, new Vector2(100, 100), 3, Color.Red));
-            //OnMouseHold += (v) =>
-            //{
-            //    AddDrawable(new Circle(25, 5, Color.Violet, Color.Violet).SetPos(v));
-            //};
-
-            //OnScroll += (s) =>
-            //{
-            //    RemoveDrawable(line);
-            //    thickness = s == ScrollEvent.Down ? thickness == 1 ? thickness : thickness - 1 : thickness + 1;
-            //    line = new StraightLine(new Core.Vector2i(0, 0), new Core.Vector2i(255, 255), Color.Black, thickness);
-            //    AddDrawable(line);
-            //};
+            var tex = new DrawableTexture(Game1.CurrentTexture, Vector2.Zero);
+            AddDrawable(tex);
+            base.OnMouseHold += (mousePos) =>
+            {
+                tex.Transform.Position = mousePos;
+            };
         }
     }
 }

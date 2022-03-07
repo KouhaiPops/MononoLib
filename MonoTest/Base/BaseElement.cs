@@ -12,12 +12,6 @@ namespace MonoTest.Base
 {
     public abstract class BaseElement : IElement
     {
-        public BaseElement()
-        {
-            // TODO calling intialize inside the constructor would cause failur when passing data
-            Initialize();
-        }
-
         /// <summary>
         /// Determine whether an element is active or not
         /// </summary>
@@ -57,9 +51,19 @@ namespace MonoTest.Base
 
         public IComponent GetComponent(Type type) => Components.TryGetValue(type, out var component) ? component : null;
 
-        public abstract void Initialize();
+        public virtual void Initialize()
+        {
 
+        }
 
-        public abstract void Update(GameTime gameTime);
+        public virtual void Update(GameTime gameTime)
+        {
+
+        }
+
+        public virtual void Removed()
+        {
+
+        }
     }
 }

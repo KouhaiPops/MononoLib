@@ -10,11 +10,11 @@ namespace MonoTest.Core
 {
     public struct Vector2i
     {
-        private static Vector2i _zero = new Vector2i(0);
-        static readonly Vector2i Zero = _zero;
+        private static Vector2i _zero = new(0);
+        public static readonly Vector2i Zero = _zero;
 
-        private static Vector2i _unit = new Vector2i(1);
-        static readonly Vector2i Unit = _unit;
+        private static Vector2i _unit = new(1);
+        public static readonly Vector2i Unit = _unit;
 
 
         public int X;
@@ -77,6 +77,12 @@ namespace MonoTest.Core
         public static implicit operator Vector2(Vector2i current)
         {
             return new Vector2(current.X, current.Y);
+        }
+
+        // TODO change this to not create a new instance, instead copy the the data the new vector
+        public static implicit operator Vector3(Vector2i self)
+        {
+            return new Vector3(self, 0);
         }
     }
 }
