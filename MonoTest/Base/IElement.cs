@@ -28,5 +28,8 @@ namespace MonoTest.Base
         public IComponent GetComponent<T>();
         public IComponent GetComponent(Type type);
 
+        public void AddChild(IElement child);
+        public void RemoveChild(IElement child);
+
     }
 }

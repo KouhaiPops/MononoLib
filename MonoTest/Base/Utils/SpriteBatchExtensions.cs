@@ -31,7 +31,7 @@ namespace MonoTest.Base.Utils
                     element.Transform.Position,
                     null,
                     Color.White,
-                    0,
+                    element.Transform.Rotation,
                     element.Transform.Origin,
                     element.Transform.Scale,
                     SpriteEffects.None,

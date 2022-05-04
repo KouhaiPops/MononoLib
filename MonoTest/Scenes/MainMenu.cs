@@ -11,6 +11,7 @@ namespace MonoTest.Scenes
 {
     class MainMenu : BaseScene
     {
+        public UITree UITree = new UITree();
         public MainMenu() : base()
         {
             //AddDrawable(new Background(GlobalState.GrphDevMngr.GraphicsDevice, new Vector2(250, 250), new Vector2(0, 0), Color.Red));
@@ -24,12 +25,16 @@ namespace MonoTest.Scenes
             //{
             //    line.SetEnd(mousePos);
             //};
-            var tex = new DrawableTexture(Game1.CurrentTexture, Vector2.Zero);
-            AddDrawable(tex);
-            base.OnMouseHold += (mousePos) =>
-            {
-                tex.Transform.Position = mousePos;
-            };
+            //var tex = new DrawableTexture(Game1.CurrentTexture, Vector2.Zero);
+            //AddDrawable(tex);
+            //OnMouseHold += (mousePos) => tex.Transform.Position = mousePos;
+            AddDrawable(new Text("Hello, world!"));
+            //AddDrawable(
+            //    UITree.AddControl(
+            //        new Button(200, 150, Color.Orange)
+            //        )
+            //    );
         }
-    }
+
+   }
 }

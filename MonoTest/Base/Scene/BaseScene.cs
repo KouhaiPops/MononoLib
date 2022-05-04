@@ -8,6 +8,7 @@ using MonoTest.Base.Input;
 
 namespace MonoTest.Base.Scene
 {
+    internal delegate void MethodBehaviour(GameTime gameTime);
     class BaseScene : IScene<IDrawable, IGameElement>, IDrawable
     {
         public enum ScrollEvent
@@ -27,6 +28,7 @@ namespace MonoTest.Base.Scene
 
         public HashSet<IDrawable> Drawables { get; set; }
         public HashSet<IGameElement> StaticBehaviours { get; set; }
+        public HashSet<MethodBehaviour> MethodBehaviours { get; set; }
         public DrawActions.PreDrawAction PreDraw { get; set; }
         public DrawActions.PostDrawAction PostDraw { get; set; }
 
@@ -35,6 +37,7 @@ namespace MonoTest.Base.Scene
             Input.KeyboardController.Initialize();
             Drawables = new HashSet<IDrawable>();
             StaticBehaviours = new HashSet<IGameElement>();
+            MethodBehaviours = new HashSet<MethodBehaviour>();
             
         }
 
@@ -92,6 +95,11 @@ namespace MonoTest.Base.Scene
             {
                 staticBehaviour.Update(gameTime);
             }
+
+            foreach(var methodBehaviour in MethodBehaviours)
+            {
+                methodBehaviour(gameTime);
+            }
         }
 
         public IScene<IDrawable, IGameElement> AddDrawable(IDrawable drawable)
@@ -117,6 +125,12 @@ namespace MonoTest.Base.Scene
         public IScene<IDrawable, IGameElement> AddBehaviour(IGameElement behaviour)
         {
             StaticBehaviours.Add(behaviour);
+            return this;
+        }
+
+        public IScene<IDrawable, IGameElement> AddMethodBehaviour(MethodBehaviour behaviour)
+        {
+            MethodBehaviours.Add(behaviour);
             return this;
         }
 

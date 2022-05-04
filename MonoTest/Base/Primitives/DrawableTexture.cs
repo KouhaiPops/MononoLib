@@ -30,9 +30,12 @@ namespace MonoTest.Base.Primitives
         }
         public DrawableTexture(Texture2D texture, Vector2 position)
         {
-            Texture = texture;
             Transform.Position = position;
-            UpdateTransform();
+            if(texture != null)
+            {
+                Texture = texture;
+                UpdateTransform();
+            }
         }
 
         public DrawActions.PreDrawAction PreDraw { get; set; }
@@ -40,7 +43,8 @@ namespace MonoTest.Base.Primitives
 
         public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.GameTime gameTime)
         {
-            spriteBatch.DrawGenericTexture(Texture, this);
+            if(Texture != null)
+                spriteBatch.DrawGenericTexture(Texture, this);
         }
 
         public override void Update(Microsoft.Xna.Framework.GameTime gameTime)

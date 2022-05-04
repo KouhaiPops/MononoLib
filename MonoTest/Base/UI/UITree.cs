@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 
+using MonoTest.Base.Graphics;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,25 +10,14 @@ using System.Threading.Tasks;
 
 namespace MonoTest.Base.UI
 {
-    public class UITree : IDrawable
+    public class UITree : GraphicGroup<IUI>
     {
-        public HashSet<IDrawable> UIControlles { get; set; } = new HashSet<IDrawable>();
-        public DrawActions.PreDrawAction PreDraw { get; set; }
-        public DrawActions.PostDrawAction PostDraw { get; set; }
 
-        public void AddControl(IDrawable control)
+        public UITree AddControl(IUI control)
         {
-            UIControlles.Add(control);
+            Drawables.Add(control);
+            return this;
         }
 
-        public void Draw(SpriteBatch spriteBatch, Microsoft.Xna.Framework.GameTime gameTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(Microsoft.Xna.Framework.GameTime gameTime)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

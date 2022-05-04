@@ -12,21 +12,22 @@ using System.Threading.Tasks;
 
 namespace MonoTest.Base.UI
 {
-    class Button : BaseElement, IDrawable
+    class Button : BaseElement, IUI
     {
-        private Texture2D buttonBackground;
+        private readonly Texture2D buttonBackground;
         public DrawActions.PreDrawAction PreDraw { get; set; }
         public DrawActions.PostDrawAction PostDraw { get; set; }
 
 
         public Button(int width, int height) : this(width, height, Color.Black) { }
-        public Button(int width, int height, Color fill)
+        public Button(int width, int height, Color fill, string label = "Button")
         {
             Transform.Size = new Vector2(width, height);
             buttonBackground = new Texture2D(GlobalState.GrphDevMngr.GraphicsDevice, (int)Transform.Size.X, (int)Transform.Size.Y);
             Color[] colors = new Color[(int)(Transform.Size.X * Transform.Size.Y)];
             Array.Fill(colors, fill);
             buttonBackground.SetData(colors);
+            AddChild(new Text());
         }
 
         public override void Initialize()

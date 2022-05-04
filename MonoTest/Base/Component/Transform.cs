@@ -55,7 +55,11 @@ namespace MonoTest.Base.Component
         private Vector2 _Scale = Vector2.One;
 
         public Transform Parent { get; internal set; }
-        
+
+        public ref float Rotation { get => ref _Rotation; }
+        private float _Rotation;
+
+
         // TODO, with the current design origin should be immutable
         // But this limits the user to only 4 axis to pivot around (by updating the originPivot)
         // A work around for now is making the origin a ref value type
