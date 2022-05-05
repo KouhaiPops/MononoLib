@@ -31,7 +31,17 @@ namespace MonoTest.Base.Graphics.Vendor
             GraphicsDevice = device;
             _fontProvider = fontProvider;
             fontProvider.OnFontChange += UpdateFont;
-            KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.Up, (_) => fontProvider.UpdateFontSize(fontProvider.FontSize + 1));
+            KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.Up, (gameTime) =>
+            {
+                Transform.Rotation += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            });
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.Down, (gameTime) => Transform.Rotation -= (float)gameTime.ElapsedGameTime.TotalSeconds);
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.Left, (_) => Transform.Origin.X--);
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.Right, (_) => Transform.Origin.X++);
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.W, (_) => Transform.Position.Y--);
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.A, (_) => Transform.Position.X--);
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.S, (_) => Transform.Position.Y++);
+            //KeyboardController.AddHandler(Microsoft.Xna.Framework.Input.Keys.D, (_) => Transform.Position.X++);
         }
         public void Draw(Texture2D texture, Vector2 pos, Rectangle? src, Color color, float rotation, Vector2 origin, Vector2 scale, float depth)
         {
@@ -39,20 +49,31 @@ namespace MonoTest.Base.Graphics.Vendor
             {
                 tex = texture;
             }
-            glyphs.Add(new Glyph(pos-origin, rotation, color, Vector2.Zero, scale, depth, src));
-            Transform.Size = origin;
+            glyphs.Add(new Glyph(pos, rotation, color, origin, scale, depth, src));
+            var absX = Math.Abs(origin.X);
+            var absY = Math.Abs(origin.Y);
+            if (absX > Transform.Size.X)
+            {
+                Transform.Size.X = absX;
+            }
+            if(absY > Transform.Size.Y)
+            {
+                Transform.Size.Y = absY;
+            }
+            Transform.OriginPivot = OriginPivot.Center;
         }
 
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             foreach (var glyph in glyphs)
             {
+                // TODO: [BUG] scaling would deform text due to origin not being relative
                 spriteBatch.Draw(tex,
-                    (glyph.Transform.Position) + Transform.Position,
+                    glyph.Transform.Position + Transform.ScenePosition,
                     glyph.src,
                     glyph.color,
                     glyph.Transform.Rotation + Transform.Rotation,
-                    glyph.Transform.Origin,
+                    glyph.Transform.Origin + (Transform.Origin*-1),
                     glyph.Transform.Scale * Transform.Scale,
                     SpriteEffects.None,
                     glyph.depth);
@@ -69,8 +90,8 @@ namespace MonoTest.Base.Graphics.Vendor
             redraw = true;
             this.text = text;
 
-            // TODO should provide DrawText with all data instead of relying on the render pass
             glyphs.Clear();
+            // TODO should provide DrawText with all data instead of relying on the render pass
             _fontProvider.SpriteFont.DrawText(this, text, Vector2.Zero, Color.Black);
 
         }

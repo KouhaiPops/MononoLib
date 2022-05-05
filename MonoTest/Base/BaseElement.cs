@@ -68,9 +68,9 @@ namespace MonoTest.Base
 
         public virtual void AddChild(IElement child)
         {
-            child.Transform.Parent = Transform;
-            child.Parent = this;
             child.Parent?.RemoveChild(child);
+            child.Parent = this;
+            child.Transform.Parent = Transform;
             Children.Add(child);
         }
 

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
+using MonoTest.Base.Input;
 using MonoTest.Base.State;
 using MonoTest.Base.Utils;
 
@@ -17,6 +19,7 @@ namespace MonoTest.Base.UI
         private readonly Texture2D buttonBackground;
         public DrawActions.PreDrawAction PreDraw { get; set; }
         public DrawActions.PostDrawAction PostDraw { get; set; }
+        private BaseText text;
 
 
         public Button(int width, int height) : this(width, height, Color.Black) { }
@@ -27,7 +30,15 @@ namespace MonoTest.Base.UI
             Color[] colors = new Color[(int)(Transform.Size.X * Transform.Size.Y)];
             Array.Fill(colors, fill);
             buttonBackground.SetData(colors);
-            AddChild(new Text());
+            text = new BaseText();
+            text.Text = label;
+            text.Transform.Position = new Vector2((width / 2)-(text.Transform.Size.X/4), (height / 2)-(text.Transform.Size.Y*2));
+            AddChild(text);
+            AxisAlignedBoundingBox
+        }
+        public Button(int width, int height, Texture2D buttonImage, string label = "Button")
+        {
+            
         }
 
         public override void Initialize()
@@ -39,11 +50,27 @@ namespace MonoTest.Base.UI
         {
             //spriteBatch.Draw(buttonBackground, Transform.Position, null, Color.Transparent, 0, Transform.Origin, Transform.Scale, SpriteEffects.None, 0);
             spriteBatch.DrawGenericTexture(buttonBackground, this);
+            text.Draw(spriteBatch, gameTime);
         }
 
         public override void Update(GameTime gameTime)
         {
-            
+            if (Keys.Up.IsDown())
+            {
+                Transform.Position.Y--;
+            }
+            if (Keys.Down.IsDown())
+            {
+                Transform.Position.Y++;
+            }
+            if (Keys.Right.IsDown())
+            {
+                Transform.Position.X++;
+            }
+            if (Keys.Left.IsDown())
+            {
+                Transform.Position.X--;
+            }
         }
     }
 }

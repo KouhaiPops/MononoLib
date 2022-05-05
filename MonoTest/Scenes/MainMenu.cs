@@ -28,12 +28,12 @@ namespace MonoTest.Scenes
             //var tex = new DrawableTexture(Game1.CurrentTexture, Vector2.Zero);
             //AddDrawable(tex);
             //OnMouseHold += (mousePos) => tex.Transform.Position = mousePos;
-            AddDrawable(new Text("Hello, world!"));
-            //AddDrawable(
-            //    UITree.AddControl(
-            //        new Button(200, 150, Color.Orange)
-            //        )
-            //    );
+            //AddDrawable(new BaseText("Hello, world!"));
+            AddDrawable(
+                UITree.AddControl(
+                    new Button(200, 150, Color.Orange)
+                    )
+                );
         }
 
    }

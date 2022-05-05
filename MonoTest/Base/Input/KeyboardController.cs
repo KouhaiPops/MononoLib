@@ -13,6 +13,7 @@ namespace MonoTest.Base.Input
     {
         public delegate void KeyboardHandler(GameTime gameTime);
         private static Dictionary<Keys, HashSet<KeyboardHandler>> Handlers = new Dictionary<Keys, HashSet<KeyboardHandler>>();
+        private static KeyboardState kbState;
 
         public static void Initialize()
         {
@@ -28,7 +29,7 @@ namespace MonoTest.Base.Input
 
         public static void CheckInput(GameTime gameTime)
         {
-            var kbState = Keyboard.GetState();
+            kbState = Keyboard.GetState();
             foreach(var key in kbState.GetPressedKeys())
             {
                 foreach(var handler in Handlers[key])
@@ -37,5 +38,12 @@ namespace MonoTest.Base.Input
                 }
             }
         }
+
+        public static bool IsDown(this Keys key)
+        {
+            return kbState.IsKeyDown(key);
+        }
+
+        
     }
 }

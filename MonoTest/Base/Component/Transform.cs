@@ -42,9 +42,21 @@ namespace MonoTest.Base.Component
 
 
         private OriginPivot _originPivot = OriginPivot.Default;
-        
+
         public ref Vector2 Position { get => ref _Position; }
         private Vector2 _Position;
+
+        public Vector2 ScenePosition
+        {
+            get
+            {
+                if(Parent != null)
+                {
+                    return _Position + Parent.ScenePosition;
+                }
+                return _Position;
+            }
+        }
 
         public ref Vector2 Size { get => ref _Size; }
 

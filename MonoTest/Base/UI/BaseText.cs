@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using MonoTest.Base.Component;
 using MonoTest.Base.Graphics.Vendor;
 using MonoTest.Base.State;
 using MonoTest.Base.Utils;
@@ -10,17 +11,15 @@ using System;
 
 namespace MonoTest.Base.UI
 {
-    public class Text : BaseElement, IDrawable
+    public class BaseText : BaseElement, IDrawable
     {
         public DrawActions.PreDrawAction PreDraw { get; set; } = DrawBase.PreDraw;
         public DrawActions.PostDrawAction PostDraw { get; set; } = DrawBase.PostDraw;
-        public ref Vector2 Position { get => ref _Position; }
-        private Vector2 _Position = Vector2.Zero;
         public ref Color Color { get => ref _Color; }
         private Color _Color = Color.Black;
 
         //TODO signal the renderer to redraw the new text
-        public string StringText { get => renderer.Text; set => renderer.SetText(value); }
+        public string Text { get => renderer.Text; set => renderer.SetText(value); }
         public string Font => fontProvider.Font;
         public int FontSize => fontProvider.FontSize;
         //private SpriteFontBase font;
@@ -29,17 +28,16 @@ namespace MonoTest.Base.UI
         private ITextRenderer<FontStashProvider> renderer;
         private TimeSpan intervalPerCharacter = TimeSpan.Zero;
         public int CharactersPerSecond { get => 0; set => intervalPerCharacter = TimeSpan.FromSeconds(1f / value); }
-
-        public Text(string text = "Text", string fontname = FontUtils.DefaultFont, int fontSize = FontUtils.DefaultFontSize)
+        
+        public BaseText(string text = "Text", string fontname = FontUtils.DefaultFont, int fontSize = FontUtils.DefaultFontSize)
         {
             // Should move to initialize
             fontProvider = new FontStashProvider();
             renderer = new BaseTextRenderer<FontStashProvider>(GlobalState.GrphDevMngr.GraphicsDevice, fontProvider);
+            renderer.Transform.Parent = Transform;
             SetFont(fontname, fontSize);
-            StringText = text;
-
-
-
+            Text = text;
+            Transform.Size = renderer.Transform.Size;
         }
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
