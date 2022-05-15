@@ -29,9 +29,15 @@ namespace MonoTest.Scenes
             //AddDrawable(tex);
             //OnMouseHold += (mousePos) => tex.Transform.Position = mousePos;
             //AddDrawable(new BaseText("Hello, world!"));
+            var button = new Button(200, 150, Color.Orange);
+            button.OnEnter += () => { Console.WriteLine("Entered"); return true; };
+            button.OnClick += () => { Console.WriteLine("Click"); return true; };
+            button.OnRelease += () => { Console.WriteLine("Release"); return true; };
+            button.OnExit += () => { Console.WriteLine("Exit"); return true; };
+            //button.OnEnter += () => { Console.WriteLine("Hover"); return true; };
             AddDrawable(
                 UITree.AddControl(
-                    new Button(200, 150, Color.Orange)
+                        button
                     )
                 );
         }

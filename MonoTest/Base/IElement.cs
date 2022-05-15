@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MonoTest.Base
 {
-    public interface IElement
+    public interface IElement : IGameElement
     {
         public bool Active { get; set; }
         public IElement Parent { get; set; }

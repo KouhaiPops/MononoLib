@@ -11,7 +11,7 @@ namespace MonoTest.Base.Utils
 {
     public static class SpriteBatchExtensions
     {
-        public static void DrawGenericTexture(this SpriteBatch spriteBatch, Texture2D texture, BaseElement element = null)
+        public static void DrawGenericTexture(this SpriteBatch spriteBatch, Texture2D texture, BaseElement element = null, Color color = default)
         {
             if(element == null)
             {
@@ -30,7 +30,8 @@ namespace MonoTest.Base.Utils
                 spriteBatch.Draw(texture,
                     element.Transform.Position,
                     null,
-                    Color.White,
+                    //Color.White,
+                    color,
                     element.Transform.Rotation,
                     element.Transform.Origin,
                     element.Transform.Scale,

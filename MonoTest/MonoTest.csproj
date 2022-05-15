@@ -31,6 +31,7 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Box2D.NetStandard" Version="2.4.6-alpha" />
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.0.4" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
