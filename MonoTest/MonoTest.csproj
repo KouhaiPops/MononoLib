@@ -20,6 +20,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="PowderGame\**" />
+    <EmbeddedResource Remove="PowderGame\**" />
+    <None Remove="PowderGame\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>
@@ -38,9 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PowderGame\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="GraphicPrimitives">

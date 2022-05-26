@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using MonoTest.Base.Graphics;
 using MonoTest.Base.Input;
+using MonoTest.Base.UI;
 
 namespace MonoTest.Base.Scene
 {
@@ -25,7 +26,7 @@ namespace MonoTest.Base.Scene
         public event Action<ScrollEvent> OnScroll;
         public ICamera Camera { get; set; } = new BaseCamera();
 
-
+        public UITree UITree { get; set; }
         public HashSet<IDrawable> Drawables { get; set; }
         public HashSet<IGameElement> StaticBehaviours { get; set; }
         public HashSet<MethodBehaviour> MethodBehaviours { get; set; }
@@ -134,10 +135,9 @@ namespace MonoTest.Base.Scene
             return this;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            // TODO free unmannged here
-            throw new NotImplementedException();
+
         }
     }
 }
