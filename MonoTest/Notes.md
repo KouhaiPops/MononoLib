@@ -11,6 +11,17 @@
 
 
 ## Important notes
+- Right now any IDrawable or IElement etc, need to be added to a secene to track them
+  - This would cause objects to be lost, and make it hard to debug in an actual game
+  - A better system would require the objects to report themselves when they are allocated?
+  - Also there should be a way to trickl down state from parent to child
 - When adding a child to parent
   - child's origin should be affected by the parent
   - parent's size should be equal to the largets child
+  
+### Sprites
+- load Textures by themselves, instead a texture manager should handle this
+
+### Animation
+- Right now animation heavliy represents actual raster animation, instead of a general term used to describe both graphics and audio clips played when an animtion is played
+  - The API should provide a way to couple these two parts

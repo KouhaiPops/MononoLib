@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Input;
 using MonoTest.Base.Effects;
 using MonoTest.Base.Scene;
 using MonoTest.Base.State;
-using MonoTest.Chip.Engine;
 using MonoTest.Scenes;
 
 namespace MonoTest
@@ -44,7 +43,7 @@ namespace MonoTest
             GlobalEffectState.TintShader = Content.Load<Effect>("BasicShader");
             GlobalEffectState.BoxBlurShader = Content.Load<Effect>("BoxBlur");
             CurrentTexture = Content.Load<Texture2D>("TextureSample");
-            Debug.Stats.Initialize(this);
+            Debug.DebugManager.Initialize(this);
             //mainMenu = new ChipScene();
             //mainMenu = new TestScenes.CircleScene();
             mainMenu = new MainMenu();
@@ -70,7 +69,7 @@ namespace MonoTest
             //_spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
             //effect.CurrentTechnique.Passes[0].Apply();
             mainMenu.Draw(_spriteBatch, gameTime);
-            Debug.Stats.ShowStats(_spriteBatch, gameTime);
+            Debug.DebugManager.DebugDraw(_spriteBatch, gameTime);
             //Debug.GraphicsDebugger.DrawDebugRect(_spriteBatch, Vector2.Zero, Vector2.One * 100);
             //_spriteBatch.End();
             base.Draw(gameTime);

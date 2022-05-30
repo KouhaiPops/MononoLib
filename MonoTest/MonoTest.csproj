@@ -3,6 +3,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <PublishReadyToRun>false</PublishReadyToRun>
+    <Nullable>enable</Nullable> 
     <TieredCompilation>false</TieredCompilation>
     <Configurations>Debug;Release;Watch</Configurations>
   </PropertyGroup>
@@ -48,5 +49,8 @@
     <Reference Include="GraphicPrimitives">
       <HintPath>..\..\GraphicPrimitives\GraphicPrimitives\bin\Debug\netcoreapp3.1\GraphicPrimitives.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Base\Graphics\Debug\" />
   </ItemGroup>
 </Project>

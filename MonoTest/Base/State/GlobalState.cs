@@ -14,5 +14,6 @@ namespace MonoTest.Base.State
         public static FontSystem FontManager { get; internal set; }
         public static GraphicsDeviceManager GrphDevMngr { get; set; }
         public static Rectangle WindowBounds { get; internal set; }
+        public static float AnimationScale = 1;
     }
 }
