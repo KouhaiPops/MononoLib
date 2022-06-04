@@ -11,5 +11,7 @@ namespace MonoTest.Base.Graphics
     public interface ICamera
     {
         public Matrix GetTransform();
+        public ref float Zoom { get; }
+        public ref Vector2 Position { get; }
     }
 }

@@ -27,9 +27,36 @@ namespace MonoTest.Base.Component
         BottomLeft = _originPivot.Bottom | _originPivot.Left,
         BottomRight = _originPivot.Bottom | _originPivot.Right,
     }
+
+
+    public static class Extensions
+    {
+        public static float ToMeter(this float pixel)
+        {
+            return pixel * Transform.PixelToMeter;
+        }
+
+        public static float ToPixel(this float meter)
+        {
+            return 50f * meter;
+        }
+    }
     public class Transform : IComponent
     {
+        public void Translate(float x, float y)
+        {
+            const float rad90 = 1.5708f;
+            // Consider two lines perpendicular to the 
+            // Rotate these two vectors be the angel
+            var xPrime = new Vector2(MathF.Cos(Rotation), MathF.Sin(Rotation));
+            var yPrime = new Vector2(MathF.Cos(Rotation+rad90), MathF.Sin(Rotation+rad90));
+            var yP = y * MathF.Cos(Rotation) + x * MathF.Sin(Rotation);
+            var xP = x * MathF.Cos(Rotation) - y * MathF.Sin(Rotation);
+            Position.X += xP;
+            Position.Y += yP;
+        }
 
+        internal const float PixelToMeter = 1f / 50f;
         public OriginPivot OriginPivot
         {
             get => _originPivot; 
@@ -66,7 +93,7 @@ namespace MonoTest.Base.Component
 
         private Vector2 _Scale = Vector2.One;
 
-        public Transform Parent { get; internal set; }
+        public Transform? Parent { get; internal set; }
 
         public ref float Rotation { get => ref _Rotation; }
         private float _Rotation;
@@ -105,8 +132,18 @@ namespace MonoTest.Base.Component
             }
         }
 
-
-
+        public Vector2 GetOriginRelativeTo(OriginPivot pivot)
+        {
+            return pivot switch
+            {
+                OriginPivot.Center => Size / -2,
+                OriginPivot.TopLeft => Vector2.Zero,
+                OriginPivot.TopRight => new Vector2(-Size.X, 0),
+                OriginPivot.BottomLeft => new Vector2(0, -Size.Y),
+                OriginPivot.BottomRight => -Size,
+                _ => Vector2.Zero,
+            };
+        }
     }
 }
         

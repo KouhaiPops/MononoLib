@@ -7,7 +7,11 @@ using Microsoft.Xna.Framework.Input;
 using MonoTest.Base.Effects;
 using MonoTest.Base.Scene;
 using MonoTest.Base.State;
+using MonoTest.Core;
+using MonoTest.Core.Physics;
 using MonoTest.Scenes;
+
+using System.Collections.Generic;
 
 namespace MonoTest
 {
@@ -18,6 +22,7 @@ namespace MonoTest
         private SpriteBatch _spriteBatch;
         private BaseScene mainMenu;
         Effect effect;
+        HashSet<IUpdate> updateables = new();
 
         public Game1()
         {
@@ -34,6 +39,12 @@ namespace MonoTest
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 800;
             _graphics.ApplyChanges();
+            updateables.Add(SimulationFactory.GetDefault);
+
+            foreach (var updateable in updateables)
+            {
+                updateable.Initialize();
+            }
             base.Initialize();
         }
 
@@ -59,6 +70,10 @@ namespace MonoTest
             // TODO: Add your update logic here
 
             base.Update(gameTime);
+            foreach (var update in updateables)
+            {
+                update.Update(gameTime);
+            }
             mainMenu.Update(gameTime);
         }
 

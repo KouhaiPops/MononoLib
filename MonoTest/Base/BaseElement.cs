@@ -20,15 +20,15 @@ namespace MonoTest.Base
         /// <summary>
         /// Backing field for <see cref="Parent"/>
         /// </summary>
-        private IElement parent;
+        private IElement? parent;
         /// <summary>
         /// The elements current parent </br>
         /// Modifying this property sets <see cref="Transform.Parent"/> to Parent's transform
         /// </summary>
-        public IElement Parent
+        public IElement? Parent
         {
-            get { return parent; }
-            set { parent = value; Transform.Parent = value.Transform; }
+            get => parent;
+            set { parent = value; Transform.Parent = value?.Transform; }
         }
         public Transform Transform { get; } = new Transform();
         public HashSet<IElement> Children { get; set; } = new HashSet<IElement>();
@@ -40,16 +40,16 @@ namespace MonoTest.Base
 
         public void RemoveComponent<T>() => RemoveComponent(typeof(T));
 
-        public void RemoveComponent(Type type)
+        public void RemoveComponent(Type? type)
         {
             if(type != null)
             {
                 Components.Remove(type);
             }
         }
-        public IComponent GetComponent<T>() => GetComponent(typeof(T));
+        public IComponent? GetComponent<T>() => GetComponent(typeof(T));
 
-        public IComponent GetComponent(Type type) => Components.TryGetValue(type, out var component) ? component : null;
+        public IComponent? GetComponent(Type type) => Components.TryGetValue(type, out var component) ? component : null;
 
         public virtual void Initialize()
         {

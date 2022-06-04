@@ -29,6 +29,33 @@ namespace MonoTest.Base.Graphics
         private readonly Dictionary<int, AnimatedSprite> spriteStates = new() { {default, null } };
         public AnimationState State { get; private set; } = default;
 
+        private SpriteEffects spriteEffect;
+        private bool horizontalFlip = false;
+        public bool HorizontalFlip
+        {
+            get => horizontalFlip;
+            set
+            {
+                horizontalFlip = value;
+                spriteEffect = value
+                    ?  spriteEffect | SpriteEffects.FlipHorizontally
+                    : (spriteEffect | SpriteEffects.FlipHorizontally) ^ SpriteEffects.FlipHorizontally;
+            }
+        }
+
+        private bool verticalFlip = false;
+        public bool VerticalFlip
+        {
+            get => verticalFlip;
+            set
+            {
+                verticalFlip = value;
+                spriteEffect = value
+                    ?  spriteEffect | SpriteEffects.FlipVertically
+                    : (spriteEffect | SpriteEffects.FlipVertically) ^ SpriteEffects.FlipVertically;
+            }
+        }
+
         public void SetState(AnimationState state)
         {
             if(state.Value != State.Value && spriteStates.TryGetValue(state.Value, out var sprite))
@@ -55,7 +82,16 @@ namespace MonoTest.Base.Graphics
         public BaseElement Parent { get; set; }
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            spriteBatch.Draw(Sprite.Texture, Parent.Transform.Position, null, Color.White);
+            spriteBatch.Draw(
+                Sprite.Texture,
+                Parent.Transform.Position,
+                null,
+                Color.White,
+                Parent.Transform.Rotation,
+                Parent.Transform.Origin,
+                Parent.Transform.Scale,
+                spriteEffect,
+                0);
         }
 
         public void Update(GameTime gameTime)

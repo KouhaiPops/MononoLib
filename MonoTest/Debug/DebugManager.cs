@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using MonoTest.Base.Graphics;
 using MonoTest.Base.Graphics.Animation;
 using MonoTest.Base.State;
 using MonoTest.Debug.Graphics;
@@ -58,6 +59,7 @@ namespace MonoTest.Debug
             DebugTerminal.Commands.Add("fps", SetFPS);
             DebugTerminal.Commands.Add("anim-speed", (args) => SetGlobalFloat(args, ref GlobalState.AnimationScale));
             DebugTerminal.Commands.Add("anim-scale", (args) => SetGlobalFloat(args, ref AnimatedSpriteDebug.GlobalSpriteScale));
+            DebugTerminal.Commands.Add("cam-scale", (args) => SetGlobalFloat(args, ref GlobalState.MainCamera.Zoom));
         }
         private static void SetGlobalFloat(string[] args, ref float value)
         {
