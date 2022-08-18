@@ -11,6 +11,7 @@ namespace MonoTest.Base.Effects
     {
         public static Effect TintShader { get; set; }
         public static Effect BoxBlurShader { get; set; }
+        public static Effect BitTex { get; set; }
 
     }
 }

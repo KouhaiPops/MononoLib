@@ -19,7 +19,7 @@ namespace MonoTest.Base.Effects
         public Vector2 Size { get; set; }
         public BoxBlur(Vector2 size)
         {
-            Effect = GlobalEffectState.TintShader;
+            Effect = GlobalEffectState.BoxBlurShader;
             Size = size;
         }
 
@@ -37,8 +37,9 @@ namespace MonoTest.Base.Effects
             }
             var v = Mouse.GetState().Position.ToVector2();
             var rect = GlobalState.WindowBounds;
-            @params["Viewport"].SetValue(new Vector2(rect.Width, rect.Height));
-            @params["MousePos"].SetValue(v);
+            @params["Param"].SetValue(new Vector2(0.2f, 0.9f));
+            //@params["Viewport"].SetValue(new Vector2(rect.Width, rect.Height));
+            //@params["MousePos"].SetValue(v);
             //Effect.Parameters.First().SetValue(Color.ToVector4());
             //Effect.Parameters.Skip(1).First().SetValue();
         }
