@@ -53,6 +53,7 @@ namespace MonoTest
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             GlobalEffectState.TintShader = Content.Load<Effect>("BasicShader");
             GlobalEffectState.BoxBlurShader = Content.Load<Effect>("BoxBlur");
+            GlobalEffectState.BitTex = Content.Load<Effect>("BitTex");
             CurrentTexture = Content.Load<Texture2D>("TextureSample");
             Debug.DebugManager.Initialize(this);
             //mainMenu = new ChipScene();
